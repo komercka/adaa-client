@@ -1,0 +1,11 @@
+{
+  "errors": [
+    {
+      "message": "Required String parameter 'x-correlation-id' is not present",
+      "additionalInfo": {
+        "parameterName": "x-correlation-id",
+        "rejectedValue": "wrongValue"
+      }
+    }
+  ]
+}

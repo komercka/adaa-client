@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>adaa</artifactId>
+        <groupId>cz.kb.openbanking.adaa.client</groupId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>api</artifactId>
+    <packaging>jar</packaging>
+    <name>ADAA client API</name>
+    <description>Client API of ADAA API</description>
+
+    <properties>
+        <openapi.debug>false</openapi.debug>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.iban4j</groupId>
+            <artifactId>iban4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>3.3.4</version>
+                <executions>
+                    <execution>
+                        <id>generate-adaa-client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <generateApiTests>false</generateApiTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateModelTests>false</generateModelTests>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateApis>false</generateApis>
+                            <inputSpec>api/src/main/resources/openapi/adaa-api-v1.json</inputSpec>
+                            <verbose>${openapi.debug}</verbose>
+                            <configOptions>
+                                <modelPackage>cz.kb.openbanking.adaa.client.model.generated</modelPackage>
+                                <title>${project.name}</title>
+                                <sourceFolder>/src/main/java</sourceFolder>
+                                <java8>true</java8>
+                                <useTags>false</useTags>
+                                <interfaceOnly>false</interfaceOnly>
+                                <delegatePattern>true</delegatePattern>
+                                <implicitHeaders>false</implicitHeaders>
+                                <sortParamsByRequiredFlag>false</sortParamsByRequiredFlag>
+                                <async>false</async>
+                                <dateLibrary>java8</dateLibrary>
+                                <useOptional>false</useOptional>
+                                <useBeanValidation>false</useBeanValidation>
+                                <performBeanValidation>false</performBeanValidation>
+                                <serializableModel>true</serializableModel>
+                                <swaggerDocketConfig>false</swaggerDocketConfig>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <performBeanValidation>false</performBeanValidation>
+                                <debugSupportingFiles>${openapi.debug}</debugSupportingFiles>
+                                <debugOpenAPI>${openapi.debug}</debugOpenAPI>
+                                <debugOperations>${openapi.debug}</debugOperations>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

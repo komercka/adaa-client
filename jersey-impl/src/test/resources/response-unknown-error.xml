@@ -1,0 +1,6 @@
+<am:fault xmlns:am="http://wso2.org/apimanager">
+    <am:code>101504</am:code>
+    <am:type>Status report</am:type>
+    <am:message>Runtime Error</am:message>
+    <am:description>Send timeout</am:description>
+</am:fault>

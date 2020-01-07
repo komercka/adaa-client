@@ -1,0 +1,81 @@
+{
+  "content": [
+    {
+      "lastUpdated": "2020-01-14T09:33:06.323Z",
+      "accountType": "KB",
+      "entryReference": "KB-1234567890",
+      "iban": "CZ9501000000001234567899",
+      "creditDebitIndicator": "CREDIT",
+      "transactionType": "DOMESTIC",
+      "amount": {
+        "value": 10000,
+        "currency": "EUR"
+      },
+      "bookingDate": "2019-04-23",
+      "valueDate": "2019-04-24",
+      "instructed": {
+        "value": 10000,
+        "currency": "EUR"
+      },
+      "reversalIndicator": false,
+      "status": "BOOK",
+      "counterParty": {
+        "iban": "CZ9501000000001234567899",
+        "name": "Tesco Stores ČR a.s.",
+        "accountNo": "1234567899",
+        "bankBic": "KOMBCZPPXXX",
+        "bankCode": "0100",
+        "bankName": "Česká spořitelna, a.s."
+      },
+      "references": {
+        "variable": "2018001",
+        "constant": "0514",
+        "specific": "708090",
+        "receiver": "Zpráva pro příjemce"
+      },
+      "additionalTransactionInformation": "8201701069595 BIC: GIBACZPXXXX; #71A# SHA ZALOHA DLE SMLOUVY O DODAVKACH"
+    },
+    {
+      "lastUpdated": "2020-01-15T09:33:06.323Z",
+      "accountType": "KB",
+      "entryReference": "KB-1234567891",
+      "iban": "CZ9501000000001234567890",
+      "creditDebitIndicator": "DEBIT",
+      "transactionType": "DOMESTIC",
+      "amount": {
+        "value": 100,
+        "currency": "USD"
+      },
+      "bookingDate": "2019-05-23",
+      "valueDate": "2019-05-24",
+      "instructed": {
+        "value": 100,
+        "currency": "USD"
+      },
+      "reversalIndicator": false,
+      "status": "BOOK",
+      "counterParty": {
+        "iban": "CZ9501000000001234567890",
+        "name": "Tesco Stores ČR a.s.",
+        "accountNo": "1234567890",
+        "bankBic": "KOMBCZPPXXX",
+        "bankCode": "0100",
+        "bankName": "Česká spořitelna, a.s."
+      },
+      "references": {
+        "variable": "2018002",
+        "constant": "0515",
+        "specific": "708091",
+        "receiver": "Zpráva pro příjemce 2"
+      },
+      "additionalTransactionInformation": "8201701069596 BIC: GIBACZPXXXX; #71A# SHA ZALOHA DLE SMLOUVY O DODAVKACH"
+    }
+  ],
+  "totalPages": 1,
+  "pageNumber": 0,
+  "pageSize": 3,
+  "numberOfElements": 2,
+  "first": true,
+  "last": true,
+  "empty": false
+}

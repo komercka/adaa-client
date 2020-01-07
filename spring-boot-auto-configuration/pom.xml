@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>adaa</artifactId>
+        <groupId>cz.kb.openbanking.adaa.client</groupId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>spring-boot-auto-configuration</artifactId>
+    <packaging>jar</packaging>
+    <name>Spring Boot auto-configuration</name>
+    <description>Spring Boot auto-configuration for ADAA API client.</description>
+
+    <dependencies>
+        <!--INTERNAL-->
+        <dependency>
+            <groupId>cz.kb.openbanking.adaa.client</groupId>
+            <artifactId>api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cz.kb.openbanking.adaa.client</groupId>
+            <artifactId>jersey-impl</artifactId>
+        </dependency>
+
+        <!-- SPRING -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>2.2.4.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.1.2.Final</version>
+        </dependency>
+    </dependencies>
+</project>

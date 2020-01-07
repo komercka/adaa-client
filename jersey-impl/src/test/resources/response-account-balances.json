@@ -1,0 +1,15 @@
+[
+  {
+    "type": "PREVIOUSLY_CLOSED_BOOK",
+    "creditDebitIndicator": "CREDIT",
+    "amount": {
+      "value": 10000,
+      "currency": "EUR"
+    },
+    "validAt": "2020-01-16T14:03:31.217Z",
+    "creditLine": {
+      "value": 10000,
+      "currency": "EUR"
+    }
+  }
+]
