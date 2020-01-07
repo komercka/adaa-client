@@ -1,5 +1,16 @@
 package cz.kb.openbanking.adaa.client.jersey;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.List;
+import javax.ws.rs.core.MediaType;
+
 import cz.kb.openbanking.adaa.client.api.AccountApi;
 import cz.kb.openbanking.adaa.client.api.exception.ItemSearchException;
 import cz.kb.openbanking.adaa.client.api.model.Account;
@@ -11,21 +22,17 @@ import cz.kb.openbanking.adaa.client.model.generated.CreditDebitIndicator;
 import cz.kb.openbanking.adaa.client.model.generated.CreditLine;
 import cz.kb.openbanking.adaa.client.model.generated.CurrencyAmount;
 import cz.kb.openbanking.adaa.client.model.generated.Error;
+import cz.kb.openbanking.adaa.client.model.generated.Statement;
 import cz.kb.openbanking.adaa.client.model.generated.TransactionCounterparty;
 import cz.kb.openbanking.adaa.client.model.generated.TransactionReferences;
 import cz.kb.openbanking.adaa.client.model.generated.TransactionType;
 import io.netty.handler.codec.http.HttpMethod;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.mockserver.model.Header;
 import org.mockserver.model.HttpStatusCode;
+import org.mockserver.model.Parameter;
 import org.mockserver.verify.VerificationTimes;
-
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockserver.model.HttpRequest.request;
 
 /**
  * Test class for the {@link AccountApiJerseyImpl}.
@@ -34,6 +41,11 @@ import static org.mockserver.model.HttpRequest.request;
  * @since 1.0
  */
 class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
+
+    /**
+     * Statement ID.
+     */
+    private static final long STATEMENT_ID = 1234L;
 
     /**
      * Test method for the {@link AccountApiJerseyImpl#balances(Account, String)} with positive result.
@@ -68,11 +80,10 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
                         .withHeader("x-api-key", "Bearer apiKey")
                         .withHeader("Authorization", "Bearer accessToken")
                         .withHeader("x-correlation-id")
-                        .withHeader("Accept", "application/json"),
+                        .withHeader("Accept", MediaType.WILDCARD),
                 VerificationTimes.exactly(1)
         );
     }
-
 
     /**
      * Test method for the {@link AccountApiJerseyImpl#transactions(Account, String)} with positive result.
@@ -179,9 +190,86 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
                         .withHeader("x-api-key", "Bearer apiKey")
                         .withHeader("Authorization", "Bearer accessToken")
                         .withHeader("x-correlation-id")
-                        .withHeader("Accept", "application/json")
+                        .withHeader("Accept", MediaType.WILDCARD)
                         .withQueryStringParameter("page", "0")
                         .withQueryStringParameter("size", "3")
+        );
+    }
+
+    /**
+     * Test method for the {@link AccountApiJerseyImpl#statements(Account, String, OffsetDateTime)}
+     * with positive result.
+     */
+    @Test
+    void test_getAccountStatements_ok() {
+        configureServer("/accounts/account-ids", "response-account-id.json",
+                HttpMethod.POST, HttpStatusCode.OK_200);
+        configureServer("/accounts/" + ACCOUNT_ID + "/statements", "response-account-statements.json",
+                HttpMethod.GET, HttpStatusCode.OK_200);
+
+        AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
+        List<Statement> result = accountApi.statements(getIbanWithCurrency(), "accessToken",
+                OffsetDateTime.parse("2020-01-16T14:03:31.217Z")).find();
+
+        assertThat(result.size()).isEqualTo(2);
+        Statement statement = result.get(0);
+        assertThat(statement.getArchive()).isFalse();
+        assertThat(statement.getIssued()).isEqualTo(LocalDate.of(2020, 2, 3));
+        assertThat(statement.getPagesCount()).isEqualTo(1);
+        assertThat(statement.getSequenceNumber()).isEqualTo(1);
+        assertThat(statement.getStatementId()).isEqualTo(1415);
+
+        statement = result.get(1);
+        assertThat(statement.getArchive()).isTrue();
+        assertThat(statement.getIssued()).isEqualTo(LocalDate.of(2020, 2, 3));
+        assertThat(statement.getPagesCount()).isEqualTo(1);
+        assertThat(statement.getSequenceNumber()).isEqualTo(2);
+        assertThat(statement.getStatementId()).isEqualTo(1416);
+
+        mockServer.verify(
+                request()
+                        .withPath("/accounts/" + ACCOUNT_ID + "/statements")
+                        .withMethod(HttpMethod.GET.name())
+                        .withQueryStringParameter(new Parameter("dateFrom", "2020-01-16T14:03:31.217Z"))
+                        .withHeader("x-api-key", "Bearer apiKey")
+                        .withHeader("Authorization", "Bearer accessToken")
+                        .withHeader("x-correlation-id")
+                        .withHeader("Accept", MediaType.WILDCARD)
+        );
+    }
+
+    /**
+     * Test method for the {@link AccountApiJerseyImpl#statementPdf(Account, String, long)}.
+     */
+    @Test
+    void test_getPdfStatement_ok() throws IOException {
+        configureServer("/accounts/account-ids", "response-account-id.json",
+                HttpMethod.POST, HttpStatusCode.OK_200);
+        byte[] response = IOUtils.toByteArray(
+                getClass().getClassLoader().getResourceAsStream("response-pdf-statement.pdf"));
+        mockServer
+                .when(
+                        request()
+                                .withMethod(HttpMethod.GET.name())
+                                .withPath("/accounts/" + ACCOUNT_ID + "/statements/" + STATEMENT_ID))
+                .respond(
+                        response()
+                                .withStatusCode(HttpStatusCode.OK_200.code())
+                                .withHeader(new Header("Content-Type", "application/pdf"))
+                                .withBody(response));
+
+        AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
+        byte[] result = accountApi.statementPdf(getIbanWithCurrency(), "accessToken", STATEMENT_ID).find();
+
+        assertThat(result).isEqualTo(response);
+
+        mockServer.verify(
+                request()
+                        .withPath("/accounts/" + ACCOUNT_ID + "/statements/" + STATEMENT_ID)
+                        .withMethod(HttpMethod.GET.name())
+                        .withHeader("x-api-key", "Bearer apiKey")
+                        .withHeader("Authorization", "Bearer accessToken")
+                        .withHeader("x-correlation-id")
         );
     }
 

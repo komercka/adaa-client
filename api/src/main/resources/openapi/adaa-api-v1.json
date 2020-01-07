@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "description": "This is the REST API Account Direct Acces API (ADAA).",
-    "version": "1.0",
+    "version": "1.1",
     "title": "Account Direct Access API"
   },
   "tags": [
@@ -19,6 +19,10 @@
       "description": "Account ID for IBAN."
     },
     {
+      "name": "Statements",
+      "description": "Statements detail or PDF file."
+    },
+    {
       "name": "Health",
       "description": "Health status"
     }
@@ -30,7 +34,7 @@
           "History"
         ],
         "summary": "Transaction history",
-        "description": "Returns transaction history based on input parameters. Sorting is based on transaction date, from older to newer transactions.",
+        "description": "Returns transaction history based on input parameters. Sorting is based on transaction date, from older to newer transactions. Currently only transactions up to 2 years old are returned. In case older transactions are requested (using parameters fromDate/toDate), error is returned.",
         "operationId": "getTransactions",
         "parameters": [
           {
@@ -64,7 +68,8 @@
               "type": "integer",
               "format": "int32",
               "default": 10,
-              "minimum": 1
+              "minimum": 1,
+              "maximum": 20
             }
           }
         ],
@@ -230,6 +235,128 @@
         ]
       }
     },
+    "/accounts/{accountId}/statements": {
+      "get": {
+        "tags": [
+          "Statements"
+        ],
+        "summary": "Detail information about statements for account.",
+        "description": "Returns information of specific account statements.",
+        "operationId": "getAccountStatements",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CorrelationId"
+          },
+          {
+            "$ref": "#/components/parameters/AccountId"
+          },
+          {
+            "$ref": "#/components/parameters/StatementDateFrom"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatementsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request header/parameter (missing header/parameter or wrong header/parameter value).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Client has no access to account or account is in blacklist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/statements/{statementId}": {
+      "get": {
+        "tags": [
+          "Statements"
+        ],
+        "summary": "Statement in PDF format",
+        "description": "Use statement ID for return specific statement in PDF format.",
+        "operationId": "getStatementPDF",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CorrelationId"
+          },
+          {
+            "$ref": "#/components/parameters/AccountId"
+          },
+          {
+            "name": "statementId",
+            "in": "path",
+            "required": true,
+            "description": "Statement ID.",
+            "example": 1415,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF document with requested statement is returned.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request header/parameter (missing header/parameter or wrong header/parameter value).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Client has no access to account or account is in blacklist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-auth-type": "Application & Application User",
+        "x-throttling-tier": "Unlimited",
+        "security": [
+          {
+            "default": []
+          }
+        ]
+      }
+    },
     "/is-alive": {
       "get": {
         "summary": "Health check service for getting availability status. All responses with HTTP status other than '200' mean the service is not currently available.",
@@ -302,6 +429,17 @@
           "pattern": "^(\\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}{0,1})$"
         }
       },
+      "StatementDateFrom": {
+        "name": "dateFrom",
+        "in": "query",
+        "required": true,
+        "description": "Date of returned account statements information.",
+        "example": "2020-01-30T15:42:30.000Z",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
       "AccountId": {
         "name": "accountId",
         "in": "path",
@@ -316,7 +454,7 @@
       "ToDate": {
         "name": "toDate",
         "in": "query",
-        "description": "End date of returned transaction history (YYYY-MM-DD).",
+        "description": "End date of returned transaction history (YYYY-MM-DD). Must not be less than 'fromDate'.",
         "example": "2018-05-10",
         "schema": {
           "type": "string",
@@ -326,7 +464,7 @@
       "FromDate": {
         "name": "fromDate",
         "in": "query",
-        "description": "Start date of returned transaction history (YYYY-MM-DD).",
+        "description": "Start date of returned transaction history (YYYY-MM-DD). Must not be greater than 'toDate'.",
         "example": "2017-05-10",
         "schema": {
           "type": "string",
@@ -429,6 +567,55 @@
           "CREDIT",
           "DEBIT"
         ]
+      },
+      "Statement": {
+        "title": "Statement",
+        "description": "Detail information about a single statement (including the statement identification used for PDF file download).",
+        "type": "object",
+        "required": [
+          "statementId",
+          "issued",
+          "sequenceNumber",
+          "pagesCount",
+          "archive"
+        ],
+        "properties": {
+          "issued": {
+            "description": "Statement issue date.",
+            "example": "2020-02-03",
+            "type": "string",
+            "format": "date"
+          },
+          "sequenceNumber": {
+            "description": "Statement sequence number (can be 0 for one-time statements).",
+            "example": 1,
+            "type": "integer"
+          },
+          "pagesCount": {
+            "description": "Statement total page count.",
+            "example": 1,
+            "type": "integer"
+          },
+          "statementId": {
+            "description": "Unique ID of the PDF statement.",
+            "example": 1415,
+            "type": "integer",
+            "format": "int64"
+          },
+          "archive": {
+            "description": "Archived statement flag (regular statements = false; archived = true).",
+            "example": false,
+            "type": "boolean"
+          }
+        }
+      },
+      "StatementsResponse": {
+        "title": "StatementsResponse",
+        "description": "Contains the information about statements.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Statement"
+        }
       },
       "TransactionReferences": {
         "description": "Transaction references",
@@ -616,7 +803,7 @@
       },
       "AccountBalancesResponse": {
         "title": "AccountBalancesResponse",
-        "description": "The list of all the client's balances for requested.",
+        "description": "The list of all the client's balances for requested account.",
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/AccountBalance"
@@ -699,7 +886,7 @@
       "PostAccountIdsResponse": {
         "title": "PostAccountIdsResponse",
         "type": "object",
-        "description": "The list of all the client's accounts with full account information.",
+        "description": "Response with account ID.",
         "properties": {
           "accountId": {
             "$ref": "#/components/schemas/AccountId"
