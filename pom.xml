@@ -34,6 +34,14 @@
         <tag>v@{project.version}</tag>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub KB Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/komercka/adaa-client</url>
+        </repository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <!--INTERNAL-->
