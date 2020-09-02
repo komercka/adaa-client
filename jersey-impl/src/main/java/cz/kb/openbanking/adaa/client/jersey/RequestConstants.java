@@ -18,6 +18,10 @@ final class RequestConstants {
 
     public static final String ACCOUNT_ID_PATH_VAR_NAME = "accountId";
 
+    public static final String STATEMENT_ID_PATH_VAR_NAME = "statementId";
+
+    public static final String STATEMENTS_DATE_FROM_PARAM_NAME = "dateFrom";
+
     public static final String CORRELATION_ID_HEADER_NAME = "x-correlation-id";
 
     public static final String API_KEY_HEADER_NAME = "x-api-key";

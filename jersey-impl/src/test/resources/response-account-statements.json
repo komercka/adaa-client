@@ -1,0 +1,16 @@
+[
+  {
+    "issued": "2020-02-03",
+    "sequenceNumber": 1,
+    "pagesCount": 1,
+    "statementId": 1415,
+    "archive": false
+  },
+  {
+    "issued": "2020-02-03",
+    "sequenceNumber": 2,
+    "pagesCount": 1,
+    "statementId": 1416,
+    "archive": true
+  }
+]

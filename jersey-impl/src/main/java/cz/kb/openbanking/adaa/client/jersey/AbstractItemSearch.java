@@ -1,25 +1,25 @@
 package cz.kb.openbanking.adaa.client.jersey;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import cz.kb.openbanking.adaa.client.api.exception.ItemSearchException;
-import cz.kb.openbanking.adaa.client.api.search.ItemSearch;
-import cz.kb.openbanking.adaa.client.model.generated.ErrorResponse;
-import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static cz.kb.openbanking.adaa.client.jersey.RequestConstants.API_KEY_HEADER_NAME;
+import static cz.kb.openbanking.adaa.client.jersey.RequestConstants.AUTHORIZATION_HEADER_NAME;
+import static cz.kb.openbanking.adaa.client.jersey.RequestConstants.CORRELATION_ID_HEADER_NAME;
 
+import java.io.IOException;
+import java.util.UUID;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.UUID;
 
-import static cz.kb.openbanking.adaa.client.jersey.RequestConstants.API_KEY_HEADER_NAME;
-import static cz.kb.openbanking.adaa.client.jersey.RequestConstants.AUTHORIZATION_HEADER_NAME;
-import static cz.kb.openbanking.adaa.client.jersey.RequestConstants.CORRELATION_ID_HEADER_NAME;
+import cz.kb.openbanking.adaa.client.api.exception.ItemSearchException;
+import cz.kb.openbanking.adaa.client.api.search.ItemSearch;
+import cz.kb.openbanking.adaa.client.model.generated.ErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract class with partial implementation of the {@link ItemSearch}.
@@ -78,11 +78,12 @@ abstract class AbstractItemSearch<RES> implements ItemSearch<RES> {
         log.debug("Call resource '{}' with correlation id '{}'.", webTarget.getUri(), correlationId);
 
         try {
-            return webTarget.request(MediaType.APPLICATION_JSON_TYPE)
-                    .header(CORRELATION_ID_HEADER_NAME, correlationId)
-                    .header(API_KEY_HEADER_NAME, "Bearer " + getRequestParameters().getApiKey())
-                    .header(AUTHORIZATION_HEADER_NAME, "Bearer " + getRequestParameters().getAccessToken())
-                    .get(getResponseClass());
+            return webTarget.request()
+                            .accept(MediaType.WILDCARD_TYPE)
+                            .header(CORRELATION_ID_HEADER_NAME, correlationId)
+                            .header(API_KEY_HEADER_NAME, "Bearer " + getRequestParameters().getApiKey())
+                            .header(AUTHORIZATION_HEADER_NAME, "Bearer " + getRequestParameters().getAccessToken())
+                            .get(getResponseClass());
         } catch (Exception e) {
             log.error("Calling of resource ends with error. Error: " + e.getMessage(), e);
             throw parseException(e);

@@ -1,5 +1,8 @@
 package cz.kb.openbanking.adaa.client.springboot.configuration;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+
 import cz.kb.openbanking.adaa.client.api.AccountApi;
 import cz.kb.openbanking.adaa.client.jersey.AccountApiJerseyImpl;
 import org.slf4j.Logger;
@@ -10,9 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.util.Assert;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 
 /**
  * ADAA API client's Spring Boot auto-configuration.
