@@ -48,6 +48,11 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
     private static final long STATEMENT_ID = 1234L;
 
     /**
+     * Start of the date-time interval of account statements.
+     */
+    public static final String STATEMENTS_DATE_FROM = "2020-01-16T14:03:31.217Z";
+
+    /**
      * Test method for the {@link AccountApiJerseyImpl#balances(Account, String)} with positive result.
      */
     @Test
@@ -65,7 +70,7 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
         amount.setCurrency("EUR");
         amount.setValue(10000d);
         assertThat(balance.getAmount()).isEqualTo(amount);
-        assertThat(balance.getValidAt()).isEqualTo(OffsetDateTime.parse("2020-01-16T14:03:31.217Z"));
+        assertThat(balance.getValidAt()).isEqualTo(OffsetDateTime.parse(STATEMENTS_DATE_FROM));
         assertThat(balance.getCreditDebitIndicator()).isEqualTo(CreditDebitIndicator.CREDIT);
         CreditLine creditLine = new CreditLine();
         creditLine.setCurrency("EUR");
@@ -209,7 +214,7 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
 
         AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
         List<Statement> result = accountApi.statements(getIbanWithCurrency(), "accessToken",
-                OffsetDateTime.parse("2020-01-16T14:03:31.217Z")).find();
+                OffsetDateTime.parse(STATEMENTS_DATE_FROM)).find();
 
         assertThat(result.size()).isEqualTo(2);
         Statement statement = result.get(0);
@@ -230,7 +235,7 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
                 request()
                         .withPath("/accounts/" + ACCOUNT_ID + "/statements")
                         .withMethod(HttpMethod.GET.name())
-                        .withQueryStringParameter(new Parameter("dateFrom", "2020-01-16T14:03:31.217Z"))
+                        .withQueryStringParameter(new Parameter("dateFrom", STATEMENTS_DATE_FROM))
                         .withHeader("x-api-key", "Bearer apiKey")
                         .withHeader("Authorization", "Bearer accessToken")
                         .withHeader("x-correlation-id")
