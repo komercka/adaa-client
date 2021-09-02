@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "description": "This is the REST API Account Direct Acces API (ADAA).",
-    "version": "1.1",
+    "version": "1.2",
     "title": "Account Direct Access API"
   },
   "tags": [
@@ -21,6 +21,10 @@
     {
       "name": "Statements",
       "description": "Statements detail or PDF file."
+    },
+    {
+      "name": "Subscriptions",
+      "description": "Asynchronous event subscriptions"
     },
     {
       "name": "Health",
@@ -105,13 +109,188 @@
             }
           }
         },
-        "x-auth-type": "Application & Application User",
-        "x-throttling-tier": "Unlimited",
-        "security": [
+        "x-auth-type": "Application \u0026 Application User",
+        "x-throttling-tier": "Unlimited"
+      }
+    },
+    "/accounts/{accountId}/transactions/event-subscriptions": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Subscribe to receive asynchronous events",
+        "description": "Subscribe to receive asynchronous events",
+        "operationId": "createSubscription",
+        "parameters": [
           {
-            "default": []
+            "$ref": "#/components/parameters/CorrelationId"
+          },
+          {
+            "$ref": "#/components/parameters/AccountId"
           }
-        ]
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Subscription created",
+            "headers": {
+              "Location": {
+                "description": "URI to the newly created subscription",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request header/parameter (missing header/parameter or wrong header/parameter value).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-auth-type": "Application \u0026 Application User",
+        "x-throttling-tier": "Unlimited"
+      }
+    },
+    "/accounts/{accountId}/transactions/event-subscriptions/{subscriptionId}": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Get subscription information",
+        "description": "Get subscription information",
+        "operationId": "getSubscriptionInfo",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CorrelationId"
+          },
+          {
+            "$ref": "#/components/parameters/AccountId"
+          },
+          {
+            "$ref": "#/components/parameters/SubscriptionId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request header/parameter (missing header/parameter or wrong header/parameter value).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Subscription/account not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-auth-type": "Application \u0026 Application User",
+        "x-throttling-tier": "Unlimited"
+      },
+      "delete": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Unsubscribe from receiving asynchronous events",
+        "description": "Unsubscribe from receiving asynchronous events",
+        "operationId": "deleteSubscription",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CorrelationId"
+          },
+          {
+            "$ref": "#/components/parameters/AccountId"
+          },
+          {
+            "$ref": "#/components/parameters/SubscriptionId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Subscription deleted successfully."
+          },
+          "400": {
+            "description": "Invalid request header/parameter (missing header/parameter or wrong header/parameter value).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Subscription/account not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-auth-type": "Application \u0026 Application User",
+        "x-throttling-tier": "Unlimited"
       }
     },
     "/accounts/{accountId}/balances": {
@@ -162,13 +341,8 @@
             }
           }
         },
-        "x-auth-type": "Application & Application User",
-        "x-throttling-tier": "Unlimited",
-        "security": [
-          {
-            "default": []
-          }
-        ]
+        "x-auth-type": "Application \u0026 Application User",
+        "x-throttling-tier": "Unlimited"
       }
     },
     "/accounts/account-ids": {
@@ -226,13 +400,8 @@
             }
           }
         },
-        "x-auth-type": "Application & Application User",
-        "x-throttling-tier": "Unlimited",
-        "security": [
-          {
-            "default": []
-          }
-        ]
+        "x-auth-type": "Application \u0026 Application User",
+        "x-throttling-tier": "Unlimited"
       }
     },
     "/accounts/{accountId}/statements": {
@@ -285,7 +454,9 @@
               }
             }
           }
-        }
+        },
+        "x-auth-type": "Application \u0026 Application User",
+        "x-throttling-tier": "Unlimited"
       }
     },
     "/accounts/{accountId}/statements/{statementId}": {
@@ -348,24 +519,15 @@
             }
           }
         },
-        "x-auth-type": "Application & Application User",
-        "x-throttling-tier": "Unlimited",
-        "security": [
-          {
-            "default": []
-          }
-        ]
+        "x-auth-type": "Application \u0026 Application User",
+        "x-throttling-tier": "Unlimited"
       }
     },
     "/is-alive": {
       "get": {
-        "summary": "Health check service for getting availability status. All responses with HTTP status other than '200' mean the service is not currently available.",
-        "operationId": "isAlive",
-        "security": [
-          {
-            "default": []
-          }
-        ],
+        "summary": "Health check service for getting availability status. All responses with HTTP status other than \u0027200\u0027 mean the service is not currently available.",
+        "operationId": "getIsAlive",
+        "security": [],
         "tags": [
           "Health"
         ],
@@ -381,7 +543,7 @@
             }
           }
         },
-        "x-auth-type": "Application & Application User",
+        "x-auth-type": "Application \u0026 Application User",
         "x-throttling-tier": "Unlimited"
       }
     }
@@ -409,12 +571,6 @@
             }
           }
         }
-      },
-      "default": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "x-api-key",
-        "description": "Access Token that is generated in Api Manager"
       }
     },
     "parameters": {
@@ -445,7 +601,7 @@
         "in": "path",
         "required": true,
         "description": "IBAN represented as unique ID, which is returned from resource account-ids.",
-        "example": "aKvemMIKdvv5VEvc5vdovmeeVas5w4wcSCSv4",
+        "example": "Q1oxMzAxMDAwOTAxMTQ3NzcxODAwMjI3OkNaSw",
         "schema": {
           "type": "string",
           "maxLength": 400
@@ -454,7 +610,7 @@
       "ToDate": {
         "name": "toDate",
         "in": "query",
-        "description": "End date of returned transaction history (YYYY-MM-DD). Must not be less than 'fromDate'.",
+        "description": "End date of returned transaction history (YYYY-MM-DD). Must not be less than \u0027fromDate\u0027.",
         "example": "2018-05-10",
         "schema": {
           "type": "string",
@@ -464,18 +620,84 @@
       "FromDate": {
         "name": "fromDate",
         "in": "query",
-        "description": "Start date of returned transaction history (YYYY-MM-DD). Must not be greater than 'toDate'.",
+        "description": "Start date of returned transaction history (YYYY-MM-DD). Must not be greater than \u0027toDate\u0027.",
         "example": "2017-05-10",
         "schema": {
           "type": "string",
           "format": "date"
         }
+      },
+      "SubscriptionId": {
+        "name": "subscriptionId",
+        "in": "path",
+        "required": true,
+        "description": "Subscription ID. Format: GUID 128-bit: 8-4-4-4-12",
+        "schema": {
+          "$ref": "#/components/schemas/SubscriptionId"
+        }
       }
     },
     "schemas": {
+      "SubscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "eventApiUrl": {
+            "$ref": "#/components/schemas/EventApiUrl"
+          },
+          "eventApiKey": {
+            "type": "string",
+            "description": "Authorization token for Event API access. Used as HTTP header \u0027x-api-key\u0027, see Event API specification.",
+            "example": "Q1oxMzAxMDAwOTAxMTQ3NzcxODAwMjI3OkNaSw"
+          }
+        }
+      },
+      "SubscriptionInfo": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": {
+            "$ref": "#/components/schemas/SubscriptionId"
+          },
+          "eventApiUrl": {
+            "$ref": "#/components/schemas/EventApiUrl"
+          },
+          "eventApiVersion": {
+            "type": "string",
+            "example": "1.0"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SUSPENDED",
+              "ACTIVE",
+              "STOPPED"
+            ]
+          },
+          "statusNarrative": {
+            "type": "string",
+            "example": "Connection Timeout: https://company.org/event-api/v1/subscriptions/71f415f4-412d-4c55-af05-15d1e0389f8f/events"
+          }
+        },
+        "required": [
+          "subscriptionId",
+          "eventApiUrl",
+          "eventApiVersion",
+          "status"
+        ]
+      },
+      "SubscriptionId": {
+        "description": "ID of a subscription",
+        "type": "string",
+        "example": "71f415f4-412d-4c55-af05-15d1e0389f8f",
+        "pattern": "^(\\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}{0,1})$"
+      },
+      "EventApiUrl": {
+        "type": "string",
+        "description": "Base URL of Event API implementation. Must be already available at the time of subscription creation.",
+        "example": "https://company.org/event-api/v1"
+      },
       "PageSlice": {
         "type": "object",
-        "description": "The list of transactions on the client's account according to the filter set in the request.",
+        "description": "The list of transactions on the client\u0027s account according to the filter set in the request.",
         "required": [
           "content",
           "totalPages",
@@ -560,7 +782,7 @@
       },
       "CreditDebitIndicator": {
         "title": "CreditDebitIndicator",
-        "description": "Indicates whether the account balance is positive or negative\n\nCODE:\n* CREDIT - Accontunt balance is &gt; 0 or Account ballance = 0\n* DEBIT - Account balance is &lt; 0\n",
+        "description": "Indicates whether the account balance is positive or negative\n\nCODE:\n* CREDIT - Accontunt balance is \u0026gt; 0 or Account ballance \u003d 0\n* DEBIT - Account balance is \u0026lt; 0\n",
         "example": "CREDIT",
         "type": "string",
         "enum": [
@@ -603,7 +825,7 @@
             "format": "int64"
           },
           "archive": {
-            "description": "Archived statement flag (regular statements = false; archived = true).",
+            "description": "Archived statement flag (regular statements \u003d false; archived \u003d true).",
             "example": false,
             "type": "boolean"
           }
@@ -621,6 +843,11 @@
         "description": "Transaction references",
         "type": "object",
         "properties": {
+          "accountServicer": {
+            "description": "Identification of the payment assigned by bank",
+            "type": "string",
+            "example": "SGWD000000653288"
+          },
           "variable": {
             "description": "Variable symbol",
             "type": "string",
@@ -670,7 +897,6 @@
           "amount",
           "creditDebitIndicator",
           "transactionType",
-          "bookingDate",
           "valueDate"
         ],
         "properties": {
@@ -694,17 +920,20 @@
           "transactionType": {
             "$ref": "#/components/schemas/TransactionType"
           },
+          "bankTransactionCode": {
+            "$ref": "#/components/schemas/BankTransactionCode"
+          },
           "amount": {
             "$ref": "#/components/schemas/CurrencyAmount"
           },
           "bookingDate": {
-            "description": "The date the payment was processed/accounted by bank in ISODate format (''YYYY-MM-DD'').",
+            "description": "The date the payment was processed/accounted by bank in ISODate format (\u0027\u0027YYYY-MM-DD\u0027\u0027).",
             "example": "2019-04-23",
             "type": "string",
             "format": "date"
           },
           "valueDate": {
-            "description": "The payment due date in ISODate format (''YYYY-MM-DD'').",
+            "description": "The payment due date in ISODate format (\u0027\u0027YYYY-MM-DD\u0027\u0027).",
             "example": "2019-04-24",
             "type": "string",
             "format": "date"
@@ -803,7 +1032,7 @@
       },
       "AccountBalancesResponse": {
         "title": "AccountBalancesResponse",
-        "description": "The list of all the client's balances for requested account.",
+        "description": "The list of all the client\u0027s balances for requested account.",
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/AccountBalance"
@@ -817,7 +1046,7 @@
           "type",
           "creditDebitIndicator",
           "amount",
-          "date"
+          "validAt"
         ],
         "properties": {
           "type": {
@@ -863,6 +1092,30 @@
           }
         }
       },
+      "BankTransactionCode": {
+        "description": "Transaction code",
+        "type": "object",
+        "properties": {
+          "code": {
+            "description": "Transaction code",
+            "example": "1000010",
+            "type": "string",
+            "maxLength": 35
+          },
+          "issuer": {
+            "$ref": "#/components/schemas/BankTransactionCodeIssuer"
+          }
+        }
+      },
+      "BankTransactionCodeIssuer": {
+        "description": "The identification of the issuer of the transaction code\n- CBA - Code of the transaction defined by CBA (Czech Bank Association) associated with specific payment. Every bank uses its own LOV for transaction codes which is derived from 1st to 3rd level of the transaction codes LOV defined by CBA standar for CAMT.053\n- OTHER\n",
+        "example": "CBA",
+        "type": "string",
+        "enum": [
+          "CBA",
+          "OTHER"
+        ]
+      },
       "Iban": {
         "title": "iban",
         "description": "International Bank Account Number.",
@@ -872,7 +1125,7 @@
       },
       "Currency": {
         "title": "currency",
-        "description": "Bank account's currency represented as currency ISO code.",
+        "description": "Bank account\u0027s currency represented as currency ISO code.",
         "example": "CZK",
         "type": "string",
         "maxLength": 3
@@ -896,7 +1149,7 @@
       "AccountId": {
         "title": "AccountId",
         "description": "IBAN represented as unique account ID.",
-        "example": "aKvemMIKdvv5VEvc5vdovmeeVas5w4wcSCSv4",
+        "example": "Q1oxMzAxMDAwOTAxMTQ3NzcxODAwMjI3OkNaSw",
         "type": "string",
         "maxLength": 400
       },
@@ -951,7 +1204,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "API's name.",
+            "description": "API\u0027s name.",
             "example": "ADAA"
           },
           "version": {
