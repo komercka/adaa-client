@@ -848,6 +848,11 @@
             "type": "string",
             "example": "SGWD000000653288"
           },
+          "endToEndIdentification": {
+            "description": "Identification of the payment/transaction provided by the client who initiated the payment",
+            "type": "string",
+            "example": "E2E-6xgp25qD46"
+          },
           "variable": {
             "description": "Variable symbol",
             "type": "string",
