@@ -15,6 +15,10 @@
       "description": "Account balance."
     },
     {
+      "name": "Accounts",
+      "description": "Selected accounts used for API service."
+    },
+    {
       "name": "AccountIds",
       "description": "Account ID for IBAN."
     },
@@ -111,6 +115,53 @@
         },
         "x-auth-type": "Application \u0026 Application User",
         "x-throttling-tier": "Unlimited"
+      }
+    },
+    "/accounts": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "List of selected accounts.",
+        "description": "List of selected accounts used for API service. Accounts are selected within service registration.",
+        "operationId": "getAccounts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CorrelationId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Accounts"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request header/parameter (missing header/parameter or wrong header/parameter value).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Client has no access to any accounts or accounts are in blacklist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/accounts/{accountId}/transactions/event-subscriptions": {
@@ -347,6 +398,7 @@
     },
     "/accounts/account-ids": {
       "post": {
+        "deprecated": true,
         "tags": [
           "AccountIds"
         ],
@@ -604,6 +656,7 @@
         "example": "Q1oxMzAxMDAwOTAxMTQ3NzcxODAwMjI3OkNaSw",
         "schema": {
           "type": "string",
+          "minLength": 1,
           "maxLength": 400
         }
       },
@@ -638,6 +691,31 @@
       }
     },
     "schemas": {
+      "Accounts": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Account"
+        }
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "$ref": "#/components/schemas/AccountId"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/IBAN"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/CurrencyISO"
+          }
+        },
+        "required": [
+          "accountId",
+          "iban",
+          "currency"
+        ]
+      },
       "SubscriptionRequest": {
         "type": "object",
         "properties": {
@@ -747,6 +825,13 @@
       },
       "IBAN": {
         "title": "IBAN",
+        "description": "International Bank Account Number.",
+        "example": "CZ9501000000001234567899",
+        "type": "string",
+        "maxLength": 34
+      },
+      "Iban": {
+        "title": "iban",
         "description": "International Bank Account Number.",
         "example": "CZ9501000000001234567899",
         "type": "string",
@@ -901,8 +986,7 @@
           "iban",
           "amount",
           "creditDebitIndicator",
-          "transactionType",
-          "valueDate"
+          "transactionType"
         ],
         "properties": {
           "lastUpdated": {
@@ -1126,6 +1210,7 @@
         "description": "International Bank Account Number.",
         "example": "CZ9501000000001234567899",
         "type": "string",
+        "minLength": 1,
         "maxLength": 34
       },
       "Currency": {
@@ -1133,6 +1218,7 @@
         "description": "Bank account\u0027s currency represented as currency ISO code.",
         "example": "CZK",
         "type": "string",
+        "minLength": 1,
         "maxLength": 3
       },
       "ReversalIndicator": {
