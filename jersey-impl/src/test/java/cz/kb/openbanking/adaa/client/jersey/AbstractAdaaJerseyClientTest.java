@@ -1,23 +1,19 @@
 package cz.kb.openbanking.adaa.client.jersey;
 
-import cz.kb.openbanking.adaa.client.api.model.Account;
-import cz.kb.openbanking.adaa.client.model.generated.PostAccountIdsRequest;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import io.netty.handler.codec.http.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.iban4j.Iban;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
 import org.mockserver.model.HttpStatusCode;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Currency;
-
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
 
 /**
  * Basic abstract test class for the ADAA client Jersey implementation.
@@ -54,7 +50,8 @@ abstract class AbstractAdaaJerseyClientTest {
      * @param status               HTTP response
      */
     protected void configureServer(String urlPath, String responseResourceName, HttpMethod method,
-                                   HttpStatusCode status) {
+                                   HttpStatusCode status)
+    {
         if (StringUtils.isBlank(urlPath)) {
             throw new IllegalArgumentException("urlPath must not be empty");
         }
@@ -71,43 +68,20 @@ abstract class AbstractAdaaJerseyClientTest {
         String response;
         try {
             response = IOUtils.toString(
-                    getClass().getClassLoader().getResourceAsStream(responseResourceName), StandardCharsets.UTF_8);
+                getClass().getClassLoader().getResourceAsStream(responseResourceName), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new IllegalStateException("Error in getting content of resource '" + responseResourceName + "'.");
         }
 
         mockServer
-                .when(
-                        request()
-                                .withMethod(method.name())
-                                .withPath(urlPath))
-                .respond(
-                        response()
-                                .withStatusCode(status.code())
-                                .withHeader(new Header("Content-Type", "application/json"))
-                                .withBody(response));
-    }
-
-    /**
-     * Gets a {@link Account}.
-     *
-     * @return {@link Account}
-     */
-    protected Account getIbanWithCurrency() {
-        return new Account(Iban.valueOf("CZ9501000000001234567899"),
-                Currency.getInstance("CZK"));
-    }
-
-    /**
-     * Gets a {@link PostAccountIdsRequest}.
-     *
-     * @return {@link PostAccountIdsRequest}
-     */
-    protected PostAccountIdsRequest getPostAccountIdsRequest() {
-        PostAccountIdsRequest request = new PostAccountIdsRequest();
-        request.setCurrency("CZK");
-        request.setIban("CZ9501000000001234567899");
-
-        return request;
+            .when(
+                request()
+                    .withMethod(method.name())
+                    .withPath(urlPath))
+            .respond(
+                response()
+                    .withStatusCode(status.code())
+                    .withHeader(new Header("Content-Type", "application/json"))
+                    .withBody(response));
     }
 }
