@@ -13,8 +13,8 @@ import javax.ws.rs.core.MediaType;
 
 import cz.kb.openbanking.adaa.client.api.AccountApi;
 import cz.kb.openbanking.adaa.client.api.exception.ItemSearchException;
-import cz.kb.openbanking.adaa.client.api.model.Account;
 import cz.kb.openbanking.adaa.client.api.model.PageSlice;
+import cz.kb.openbanking.adaa.client.model.generated.Account;
 import cz.kb.openbanking.adaa.client.model.generated.AccountBalance;
 import cz.kb.openbanking.adaa.client.model.generated.AccountTransaction;
 import cz.kb.openbanking.adaa.client.model.generated.AccountType;
@@ -53,16 +53,43 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
     public static final String STATEMENTS_DATE_FROM = "2020-01-16T14:03:31.217Z";
 
     /**
-     * Test method for the {@link AccountApiJerseyImpl#balances(Account, String)} with positive result.
+     * Test method for the {@link AccountApi#accounts(String)} with positive result.
+     */
+    @Test
+    void test_getAccounts_ok() {
+        configureServer("/accounts", "response-accounts.json", HttpMethod.GET, HttpStatusCode.OK_200);
+
+        AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
+        List<Account> result = accountApi.accounts("accessToken").find();
+
+        assertThat(result).hasOnlyOneElementSatisfying(account -> {
+            assertThat(account.getAccountId()).isEqualTo(ACCOUNT_ID);
+            assertThat(account.getIban()).isEqualTo("CZ9501000000001234567899");
+            assertThat(account.getCurrency()).isEqualTo("CZK");
+        });
+
+        mockServer.verify(
+            request()
+                .withPath("/accounts")
+                .withMethod(HttpMethod.GET.name())
+                .withHeader("x-api-key", "Bearer apiKey")
+                .withHeader("Authorization", "Bearer accessToken")
+                .withHeader("x-correlation-id")
+                .withHeader("Accept", MediaType.WILDCARD),
+            VerificationTimes.exactly(1)
+        );
+    }
+
+    /**
+     * Test method for the {@link AccountApi#balances(String, String)} with positive result.
      */
     @Test
     void test_getAccountBalances_ok() {
-        configureServer("/accounts/account-ids", "response-account-id.json", HttpMethod.POST, HttpStatusCode.OK_200);
         configureServer("/accounts/" + ACCOUNT_ID + "/balances", "response-account-balances.json",
                 HttpMethod.GET, HttpStatusCode.OK_200);
 
         AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
-        List<AccountBalance> result = accountApi.balances(getIbanWithCurrency(), "accessToken").find();
+        List<AccountBalance> result = accountApi.balances(ACCOUNT_ID, "accessToken").find();
 
         assertThat(result.size()).isEqualTo(1);
         AccountBalance balance = result.get(0);
@@ -91,17 +118,16 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
     }
 
     /**
-     * Test method for the {@link AccountApiJerseyImpl#transactions(Account, String)} with positive result.
+     * Test method for the {@link AccountApi#transactions(String, String)} with positive result.
      */
     @Test
     void test_getTransactions_ok() {
-        configureServer("/accounts/account-ids", "response-account-id.json", HttpMethod.POST, HttpStatusCode.OK_200);
         configureServer("/accounts/" + ACCOUNT_ID + "/transactions", "response-transaction-history.json",
                 HttpMethod.GET, HttpStatusCode.OK_200);
 
         AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
 
-        PageSlice<AccountTransaction> result = accountApi.transactions(getIbanWithCurrency(), "accessToken")
+        PageSlice<AccountTransaction> result = accountApi.transactions(ACCOUNT_ID, "accessToken")
                 .size(3)
                 .page(0)
                 .find();
@@ -202,18 +228,16 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
     }
 
     /**
-     * Test method for the {@link AccountApiJerseyImpl#statements(Account, String, OffsetDateTime)}
+     * Test method for the {@link AccountApi#statements(String, String, OffsetDateTime)}
      * with positive result.
      */
     @Test
     void test_getAccountStatements_ok() {
-        configureServer("/accounts/account-ids", "response-account-id.json",
-                HttpMethod.POST, HttpStatusCode.OK_200);
         configureServer("/accounts/" + ACCOUNT_ID + "/statements", "response-account-statements.json",
                 HttpMethod.GET, HttpStatusCode.OK_200);
 
         AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
-        List<Statement> result = accountApi.statements(getIbanWithCurrency(), "accessToken",
+        List<Statement> result = accountApi.statements(ACCOUNT_ID, "accessToken",
                 OffsetDateTime.parse(STATEMENTS_DATE_FROM)).find();
 
         assertThat(result.size()).isEqualTo(2);
@@ -244,12 +268,10 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
     }
 
     /**
-     * Test method for the {@link AccountApiJerseyImpl#statementPdf(Account, String, long)}.
+     * Test method for the {@link AccountApi#statementPdf(String, String, long)}.
      */
     @Test
     void test_getPdfStatement_ok() throws IOException {
-        configureServer("/accounts/account-ids", "response-account-id.json",
-                HttpMethod.POST, HttpStatusCode.OK_200);
         byte[] response = IOUtils.toByteArray(
                 getClass().getClassLoader().getResourceAsStream("response-pdf-statement.pdf"));
         mockServer
@@ -264,7 +286,7 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
                                 .withBody(response));
 
         AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
-        byte[] result = accountApi.statementPdf(getIbanWithCurrency(), "accessToken", STATEMENT_ID).find();
+        byte[] result = accountApi.statementPdf(ACCOUNT_ID, "accessToken", STATEMENT_ID).find();
 
         assertThat(result).isEqualTo(response);
 
@@ -279,17 +301,16 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
     }
 
     /**
-     * Test method for the {@link AccountApiJerseyImpl#balances(Account, String)} with unknown error occurred.
+     * Test method for the {@link AccountApi#balances(String, String)} with unknown error occurred.
      */
     @Test
     void test_getAccountBalances_unknownError() {
-        configureServer("/accounts/account-ids", "response-account-id.json", HttpMethod.POST, HttpStatusCode.OK_200);
         configureServer("/accounts/" + ACCOUNT_ID + "/balances", "response-unknown-error.xml", HttpMethod.GET,
                 HttpStatusCode.FORBIDDEN_403);
 
         AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
 
-        Throwable thrown = catchThrowable(() -> accountApi.balances(getIbanWithCurrency(), "accessToken").find());
+        Throwable thrown = catchThrowable(() -> accountApi.balances(ACCOUNT_ID, "accessToken").find());
 
         ItemSearchException itemSearchException = (ItemSearchException) thrown;
         assertThat(itemSearchException.getMessage()).isEqualTo("Error occurred during calling API. Error: Forbidden");
@@ -297,19 +318,18 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
     }
 
     /**
-     * Test method fot the {@link AccountApiJerseyImpl#transactions(Account, String)}
+     * Test method fot the {@link AccountApi#transactions(String, String)}
      * with missing correlation ID.
      */
     @Test
     void test_getTransactions_missingCorrelationId() {
-        configureServer("/accounts/account-ids", "response-account-id.json", HttpMethod.POST, HttpStatusCode.OK_200);
         configureServer("/accounts/" + ACCOUNT_ID + "/transactions", "response-missing-corr-id.json", HttpMethod.GET,
                 HttpStatusCode.BAD_REQUEST_400);
 
         AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
 
         Throwable thrown = catchThrowable(() ->
-                accountApi.transactions(getIbanWithCurrency(), "accessToken")
+                accountApi.transactions(ACCOUNT_ID, "accessToken")
                         .size(3)
                         .page(0)
                         .find()
@@ -330,19 +350,18 @@ class AccountApiJerseyImplTest extends AbstractAdaaJerseyClientTest {
     }
 
     /**
-     * Test method for the {@link AccountApiJerseyImpl#transactions(Account, String)}
+     * Test method for the {@link AccountApi#transactions(String, String)}
      * with unknown error occurred.
      */
     @Test
     void test_getTransactions_unknownError() {
-        configureServer("/accounts/account-ids", "response-account-id.json", HttpMethod.POST, HttpStatusCode.OK_200);
         configureServer("/accounts/" + ACCOUNT_ID + "/transactions", "response-unknown-error.xml", HttpMethod.GET,
                 HttpStatusCode.FORBIDDEN_403);
 
         AccountApi accountApi = new AccountApiJerseyImpl(MOCK_SERVER_URI, "apiKey");
 
         Throwable thrown = catchThrowable(() ->
-                accountApi.transactions(getIbanWithCurrency(), "accessToken")
+                accountApi.transactions(ACCOUNT_ID, "accessToken")
                         .size(3)
                         .page(0)
                         .find()
