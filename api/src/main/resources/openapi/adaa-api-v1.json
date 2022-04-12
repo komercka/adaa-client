@@ -111,6 +111,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Unchanged data download limit reached. Use publish-subscribe pattern for data change notifications. Limit: 1 download per 61 minutes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "x-auth-type": "Application \u0026 Application User",
