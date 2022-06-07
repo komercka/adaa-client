@@ -75,7 +75,7 @@ abstract class AbstractItemSearch<RES> implements ItemSearch<RES> {
         webTarget.register(getJacksonJsonProvider());
 
         String correlationId = UUID.randomUUID().toString();
-        log.debug("Call resource '{}' with correlation id '{}'.", webTarget.getUri(), correlationId);
+        log.info("Call resource '{}' with correlation id '{}'.", webTarget.getUri(), correlationId);
 
         try {
             return webTarget.request()
