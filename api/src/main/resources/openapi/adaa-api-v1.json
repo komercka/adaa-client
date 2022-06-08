@@ -840,13 +840,6 @@
         "type": "string",
         "maxLength": 34
       },
-      "Iban": {
-        "title": "iban",
-        "description": "International Bank Account Number.",
-        "example": "CZ9501000000001234567899",
-        "type": "string",
-        "maxLength": 34
-      },
       "AccountNumber": {
         "title": "AccountNumber",
         "description": "Account Number in national format (without bank code).",

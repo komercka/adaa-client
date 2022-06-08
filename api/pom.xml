@@ -22,6 +22,14 @@
             <artifactId>jackson-annotations</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
@@ -44,7 +52,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>3.3.4</version>
+                <version>5.1.0</version>
                 <executions>
                     <execution>
                         <id>generate-adaa-client</id>
@@ -52,7 +60,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <generatorName>spring</generatorName>
+                            <generatorName>jaxrs-jersey</generatorName>
                             <generateApiTests>false</generateApiTests>
                             <generateApiDocumentation>false</generateApiDocumentation>
                             <generateModelTests>false</generateModelTests>
@@ -65,7 +73,6 @@
                                 <modelPackage>cz.kb.openbanking.adaa.client.model.generated</modelPackage>
                                 <title>${project.name}</title>
                                 <sourceFolder>/src/main/java</sourceFolder>
-                                <java8>true</java8>
                                 <useTags>false</useTags>
                                 <interfaceOnly>false</interfaceOnly>
                                 <delegatePattern>true</delegatePattern>
