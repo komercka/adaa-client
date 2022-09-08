@@ -1052,6 +1052,9 @@
             "type": "string",
             "maxLength": 500,
             "example": "8201701069595 BIC: GIBACZPXXXX; #71A# SHA ZALOHA DLE SMLOUVY O DODAVKACH"
+          },
+          "cardTransactionDetails": {
+            "$ref": "#/components/schemas/CardTransactionDetails"
           }
         }
       },
@@ -1246,6 +1249,18 @@
         "example": "Q1oxMzAxMDAwOTAxMTQ3NzcxODAwMjI3OkNaSw",
         "type": "string",
         "maxLength": 400
+      },
+      "CardTransactionDetails": {
+        "description": "Details related to a CARD transaction",
+        "type": "object",
+        "properties": {
+          "holdExpirationDate": {
+            "description": "Expiration date of a pending state transaction. ISO 8601 format.",
+            "type": "string",
+            "format": "date",
+            "example": "2022-05-03"
+          }
+        }
       },
       "ErrorResponse": {
         "type": "object",
