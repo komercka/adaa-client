@@ -1,9 +1,8 @@
 # KB ADAA API Java SDK
 
 #### Links
-* [KB API Business portal](https://www.kb.cz/api)
+* [ADAA API technical manual](https://github.com/komercka/adaa-client/wiki)
 * [KB API Developer portal](https://api.kb.cz/open/apim/store)
-* [ADAA API technical manual (for production version)](https://www.kb.cz/getmedia/ffc70c65-cc28-4809-ad47-22b7b4361ce5/ADAA_Technical_manual_EN.pdf.aspx)
 * [ADAA API technical manual (for sandbox version)](https://www.kb.cz/getmedia/3662e39f-04af-4872-bf02-eda9c05a0c11/API_Sandbox_Account-Direct-Access-API-Manual_EN.pdf.aspx)
 
 ---
@@ -58,8 +57,6 @@ PageSlice<AccountTransactions> result = accoutApi.transactions(iban, currency)
 , where `fromDate()`, `size()`, `page()` are methods of theFluent API interfaces `DateSearch` and `PageSearch`
 
 To be able to call ADAA API you should get the account ID first (unique identifier of IBAN with currency).
-For more convenient usage, this SDK encapsulates the `account-ids` endpoint call,
+For more convenient usage, this SDK encapsulates the `accounts` endpoint call,
 thus you need to provide only client's IBAN with currency - the SDK will do the rest.
 
----
-For more details and examples of usage this SDK see [ADAA API's client reference example](todo)
